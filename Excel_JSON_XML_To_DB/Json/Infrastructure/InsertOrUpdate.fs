@@ -7,6 +7,15 @@ open FsToolkit.ErrorHandling
 
 open DtoJsonIntoDb
 
+(*
+IF EXISTS (SELECT 1 FROM TabA WHERE RC = @RC)
+    UPDATE TabA SET Jmeno = @Jmeno, Prijmeni = @Prijmeni, DatumNarozeni = @DatumNarozeni
+    WHERE RC = @RC
+ELSE
+    INSERT INTO TabA (Jmeno, Prijmeni, RC, DatumNarozeni)
+    VALUES (@Jmeno, @Prijmeni, @RC, @DatumNarozeni)
+*)
+
 let private queryInsertOrUpdate =
     "
     USE Natalie;

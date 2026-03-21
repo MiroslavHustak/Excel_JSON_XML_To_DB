@@ -10,7 +10,8 @@ open XmlIntoDto
 let readDataFromXmlTP () : Result<PersonXmlIntoDto list, string> =    
     
     try    
-        let sample = XmlProviderTP.Load @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Xml\XmlFile\xmlNightwish2013.xml"
+        //let sample = XmlProviderTP.Load @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Xml\XmlFile\xmlNightwish2013.xml"
+        let sample = XmlProviderTP.Load pathXml //For Docker testing
      
         option
             {
