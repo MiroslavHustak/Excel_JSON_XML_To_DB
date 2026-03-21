@@ -25,7 +25,7 @@ open TransformationLayerXml
 [<EntryPoint>] 
 let main argv =       
        
-    let fullPath = @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Excel\ExcelFile\excelNightwish2013.xlsx"
+    //let fullPath = @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Excel\ExcelFile\excelNightwish2013.xlsx"
     
     //*********** Excel************
     (*
@@ -73,7 +73,7 @@ let main argv =
     result3 |> printfn "%A"
     //*****************************
    
-    //let persons = transformedListClosedXML fullPath
+    //let persons = transformedListClosedXML fullPath //For an Excel file only
     let persons = transformedListTP() 
 
     let result =
@@ -95,5 +95,3 @@ let main argv =
     | Error err -> err |> printfn "\n%s"
    
     0   
-
-

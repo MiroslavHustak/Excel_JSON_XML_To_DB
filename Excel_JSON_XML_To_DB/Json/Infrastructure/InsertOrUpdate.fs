@@ -50,14 +50,12 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtoJsonIntoDb list, stri
                     connection.BeginTransactionAsync(isolationLevel).AsTask()
                     |> Async.AwaitTask
 
-                let transaction = 
+                let! transaction = 
                     match transaction with
                     | :? SqlTransaction 
                         as sqlTx 
                             -> Ok sqlTx
                     | _     -> Error "Unexpected transaction type"
-
-                let! transaction = transaction
 
                 try
                     use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
@@ -82,7 +80,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtoJsonIntoDb list, stri
                                             //failwith "simulated failure"
                                                 
                                             parameterDate.Value <- item.DatumNarozeni
-                                            cmdInsert.Parameters.Add(parameterDate) |> ignore<SqlParameter>
+                                            cmdInsert.Parameters.Add parameterDate |> ignore<SqlParameter>
                                                 
                                             let! affected = cmdInsert.ExecuteNonQueryAsync() |> Async.AwaitTask
                                             return affected > 0
@@ -101,6 +99,72 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtoJsonIntoDb list, stri
                         ->
                         transaction.Commit()
                         return! Ok ()
+                finally
+                    transaction.Dispose()
+            with
+            | ex
+                ->
+                return! Error (sprintf "Transaction failed: %s" <| string ex.Message)
+        }
+
+let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtoJsonIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+
+    asyncResult 
+        {
+            let! persons = persons      
+            let! connection = connection  //single let! unwraps both layers at once in case of nested Async<Result<>> — no need for nested let!s 
+
+            try
+                let isolationLevel = IsolationLevel.Serializable
+
+                let! transaction =
+                    connection.BeginTransactionAsync(isolationLevel).AsTask()
+                    |> Async.AwaitTask
+
+                let! transaction = 
+                    match transaction with
+                    | :? SqlTransaction 
+                        as sqlTx 
+                            -> Ok sqlTx
+                    | _     -> Error "Unexpected transaction type"
+
+                try
+                    use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
+                    let parameterDate = SqlParameter()
+                    parameterDate.ParameterName <- "@DatumNarozeni"
+                    parameterDate.SqlDbType <- SqlDbType.Date
+            
+                    let! _ =                                    
+                        persons
+                        |> List.map 
+                            (fun item 
+                                ->
+                                asyncResult
+                                    {                        
+                                        try
+                                            cmdInsert.Parameters.Clear()
+                                            cmdInsert.Parameters.AddWithValue("@Jmeno",    item.Jmeno)    |> ignore<SqlParameter>
+                                            cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore<SqlParameter>
+                                            cmdInsert.Parameters.AddWithValue("@RC",       item.RC)       |> ignore<SqlParameter>
+            
+                                            parameterDate.Value <- item.DatumNarozeni
+                                            cmdInsert.Parameters.Add parameterDate |> ignore<SqlParameter>
+            
+                                            let! affected = cmdInsert.ExecuteNonQueryAsync() |> Async.AwaitTask
+
+                                            match affected = 0 with
+                                            | true  -> return! Error "No rows were affected by the insert or update operation"  
+                                            | false -> return ()    
+                                        with 
+                                        | ex -> return! Error (sprintf "Row failed: %s" ex.Message)
+                                    }
+                            )
+                        |> List.sequenceAsyncResultM            // stops at first Error, returns Async<Result<unit list, string>>
+            
+                    // only reached if all rows succeeded
+                    transaction.Commit()
+
+                    return! Ok ()
                 finally
                     transaction.Dispose()
             with
