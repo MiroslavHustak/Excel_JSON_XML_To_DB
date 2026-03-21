@@ -1,0 +1,9 @@
+{
+  "list": [
+    { "Jmeno": "Floor",  "Prijmeni": "Jansen",     "RC": "8102216847", "DatumNarozeni": "1981-02-21" },
+    { "Jmeno": "Tuomas", "Prijmeni": "Holopainen", "RC": "7612253089", "DatumNarozeni": "1976-12-25" },
+    { "Jmeno": "Emppu",  "Prijmeni": "Vuorinen",   "RC": "7806241572", "DatumNarozeni": "1978-06-24" },
+    { "Jmeno": "Marco",  "Prijmeni": "Hietala",    "RC": "6601125396", "DatumNarozeni": "1966-01-12" },
+    { "Jmeno": "Jukka",  "Prijmeni": "Nevalainen", "RC": "7804219264", "DatumNarozeni": "1978-04-21" }
+  ]
+}
