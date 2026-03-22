@@ -1,10 +1,10 @@
-﻿module ExcelIntoDto
+﻿module ExcelIntoDtm
 
 open System
 
-// Excel -> DTO
+// Excel -> DTM
 //*********************************************
-type PersonExcelIntoDto = 
+type PersonExcelIntoDtm = 
     {
         Jmeno         : string option
         Prijmeni      : string option

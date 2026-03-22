@@ -3,7 +3,7 @@
 open FSharp.Interop.Excel
 
 open Helpers
-open ExcelIntoDto
+open ExcelIntoDtm
 
 // Unfortunately, ExcelProvider uses the sample file as both schema and runtime source.
 // Unlike JSON/XML type providers, there is no way to load a different file at runtime.
@@ -11,7 +11,7 @@ open ExcelIntoDto
 // Formard slash is used in the path, because ExcelProvider doesn't work with backslashes in the path (even if they are escaped).
 type ExcelProviderTP = ExcelFile<"e:/source/repos/Excel_JSON_XML_To_DB/Excel_JSON_XML_To_DB/Excel/ExcelFile/excelNightwish2013.xlsx", "List1">
    
-let readDataFromExcelTP () : Result<PersonExcelIntoDto list, string> =    
+let readDataFromExcelTP () : Result<PersonExcelIntoDtm list, string> =    
     
     try    
         let file = new ExcelProviderTP()

@@ -3,13 +3,13 @@
 open ClosedXML.Excel
 
 open Helpers
-open ExcelIntoDto
+open ExcelIntoDtm
 
-let readDataFromExcelClosedXML (filePath: string) : Result<PersonExcelIntoDto list, string> =
+let readDataFromExcelClosedXML (filePath: string) : Result<PersonExcelIntoDtm list, string> =
 
     try
         use workbook = new XLWorkbook(filePath)
-        let sheet = workbook.Worksheet("List1")
+        let sheet = workbook.Worksheet "List1"
         let rows = sheet.RangeUsed().RowsUsed() |> Seq.skip 1  // skip header
     
         rows

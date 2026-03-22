@@ -1,10 +1,10 @@
-﻿module DtoXmlIntoDb
+﻿module DtmXmlIntoDb
 
 open System
 
-// DTO -> DB
+// DTM -> DB
 //*********************************************
-type PersonDtoXmlIntoDb = 
+type PersonDtmXmlIntoDb = 
     {
         Jmeno         : string 
         Prijmeni      : string 

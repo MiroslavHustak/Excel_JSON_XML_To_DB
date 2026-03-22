@@ -1,10 +1,10 @@
-﻿module DtoJsonIntoDb
+﻿module DtmExcelIntoDb
 
 open System
 
-// DTO -> DB
+// DTM -> DB
 //*********************************************
-type PersonDtoJsonIntoDb = 
+type PersonDtmExcelIntoDb = 
     {
         Jmeno         : string 
         Prijmeni      : string 

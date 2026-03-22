@@ -19,8 +19,8 @@
 		<Compile Include="CEBuilders\CEBuilders.fs" />
 		<Compile Include="OptionResultExtensions\OptionExtensions.fs" />
 		<Compile Include="OptionResultExtensions\ResultExtensions.fs" />
-		<Compile Include="Excel\DomainModelling\DtoExcel\DtoExcel.fs" />
-		<Compile Include="Excel\DomainModelling\DtoDb\DtoDb.fs" />
+		<Compile Include="Excel\DomainModelling\DtmExcel\DtmExcel.fs" />
+		<Compile Include="Excel\DomainModelling\DtmDb\DtmDb.fs" />
 		<Compile Include="Excel\DomainModelling\TransformationLayer\Excel_ClosedXML.fs" />
 		<Compile Include="Excel\DomainModelling\TransformationLayer\Excel_TP.fs" />
 		<Compile Include="Excel\DomainModelling\TransformationLayer\TransLayerExcelIntoDb.fs" />
@@ -28,15 +28,15 @@
 		<Content Include="Excel\ExcelFile\excelNightwish2013.xlsx">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Compile Include="Json\DomainModelling\DtoDb\DtoDb.fs" />
-		<Compile Include="Json\DomainModelling\DtoJson\DtoJson.fs" />
+		<Compile Include="Json\DomainModelling\DtmDb\DtmDb.fs" />
+		<Compile Include="Json\DomainModelling\DtmJson\DtmJson.fs" />
 		<Compile Include="Json\DomainModelling\TransformationLayer\Json_TP.fs" />
 		<Compile Include="Json\DomainModelling\TransformationLayer\TransLayerJsonIntoDb.fs" />
 		<Content Include="Json\JsonFile\jsonNightwish2013.json" />
 		<Compile Include="Json\Infrastructure\InsertOrUpdate.fs" />
 		<Content Include="Xml\XmlFile\xmlNightwish2013.xml" />
-		<Compile Include="Xml\DomainModelling\DtoDb\DtoDb.fs" />
-		<Compile Include="Xml\DomainModelling\DtoXml\DtoXml.fs" />
+		<Compile Include="Xml\DomainModelling\DtmDb\DtmDb.fs" />
+		<Compile Include="Xml\DomainModelling\DtmXml\DtmXml.fs" />
 		<Compile Include="Xml\DomainModelling\TransformationLayer\Xml_TP.fs" />
 		<Compile Include="Xml\DomainModelling\TransformationLayer\TransLayerXmlntoDb.fs" />
 		<Compile Include="Xml\Infrastructure\InsertOrUpdate.fs" />

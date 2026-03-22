@@ -5,9 +5,9 @@ open FsToolkit.ErrorHandling
 open EmbeddedTP.EmbeddedTP
 
 open Helpers
-open XmlIntoDto
+open XmlIntoDtm
 
-let readDataFromXmlTP () : Result<PersonXmlIntoDto list, string> =    
+let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =    
     
     try    
         //let sample = XmlProviderTP.Load @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Xml\XmlFile\xmlNightwish2013.xml"

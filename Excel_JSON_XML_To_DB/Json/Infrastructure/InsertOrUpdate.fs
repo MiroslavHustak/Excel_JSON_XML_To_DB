@@ -5,7 +5,7 @@ open Microsoft.Data.SqlClient
 
 open FsToolkit.ErrorHandling
 
-open DtoJsonIntoDb
+open DtmJsonIntoDb
 
 (*
 IF EXISTS (SELECT 1 FROM TabA WHERE RC = @RC)
@@ -36,7 +36,7 @@ let private queryInsertOrUpdate =
         VALUES (source.Jmeno, source.Prijmeni, source.RC, source.DatumNarozeni);
     "
 
-let internal insertOrUpdateAsync (persons: Result<PersonDtoJsonIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult 
         {
@@ -107,7 +107,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtoJsonIntoDb list, stri
                 return! Error (sprintf "Transaction failed: %s" <| string ex.Message)
         }
 
-let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtoJsonIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult 
         {

@@ -1,10 +1,10 @@
-﻿module XmlIntoDto
+﻿module JsonIntoDtm
 
 open System
 
-// Json -> DTO
+// Json -> DTM
 //*********************************************
-type PersonXmlIntoDto = 
+type PersonJsonIntoDtm = 
     {
         Jmeno         : string option
         Prijmeni      : string option

@@ -5,7 +5,7 @@ open Microsoft.Data.SqlClient
 
 open FsToolkit.ErrorHandling
 
-open DtoXmlIntoDb
+open DtmXmlIntoDb
 
 (*
 IF EXISTS (SELECT 1 FROM TabA WHERE RC = @RC)
@@ -36,7 +36,7 @@ let private queryInsertOrUpdate =
         VALUES (source.Jmeno, source.Prijmeni, source.RC, source.DatumNarozeni);
     "
 
-let internal insertOrUpdateAsync (persons: Result<PersonDtoXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult 
         {
@@ -108,7 +108,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtoXmlIntoDb list, strin
         }
 
 
-let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtoXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult 
         {

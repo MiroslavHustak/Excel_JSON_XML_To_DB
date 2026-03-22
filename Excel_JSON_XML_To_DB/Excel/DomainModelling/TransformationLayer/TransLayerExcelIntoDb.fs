@@ -3,26 +3,26 @@
 open System
 
 open Excel_TP
-open ExcelIntoDto
+open ExcelIntoDtm
 open ExcelClosedXML
-open DtoExcelIntoDb
+open DtmExcelIntoDb
 
 // Transformation Layer: Excel TypeProvider -> DB
 //*********************************************
 
-let internal transformedListTP () : Result<PersonDtoExcelIntoDb list, string> =
+let internal transformedListTP () : Result<PersonDtmExcelIntoDb list, string> =
 
     readDataFromExcelTP ()
     |> Result.map
         (List.map 
-            (fun dto 
+            (fun dtm 
                 ->
                 {
-                    Jmeno = dto.Jmeno |> Option.defaultValue "N/A"
-                    Prijmeni = dto.Prijmeni |> Option.defaultValue "N/A"
-                    RC = dto.RC |> Option.defaultValue "N/A"
+                    Jmeno = dtm.Jmeno |> Option.defaultValue "N/A"
+                    Prijmeni = dtm.Prijmeni |> Option.defaultValue "N/A"
+                    RC = dtm.RC |> Option.defaultValue "N/A"
                     // TypeProvider returns MM/dd/yyyy — month first (US locale)
-                    DatumNarozeni = dto.DatumNarozeni |> Option.defaultValue (DateTime(1900, 1, 1))                      
+                    DatumNarozeni = dtm.DatumNarozeni |> Option.defaultValue (DateTime(1900, 1, 1))                      
                 }
             )
         )
@@ -30,7 +30,7 @@ let internal transformedListTP () : Result<PersonDtoExcelIntoDb list, string> =
 // Transformation Layer: Excel ClosedXML -> DB
 //*********************************************
 
-let internal transformedListClosedXML fullPath : Result<PersonDtoExcelIntoDb list, string> =
+let internal transformedListClosedXML fullPath : Result<PersonDtmExcelIntoDb list, string> =
 
     readDataFromExcelClosedXML fullPath
     |> Result.map

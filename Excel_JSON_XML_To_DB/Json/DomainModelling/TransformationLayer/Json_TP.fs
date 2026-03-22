@@ -5,9 +5,9 @@ open FsToolkit.ErrorHandling
 open EmbeddedTP.EmbeddedTP
 
 open Helpers
-open JsonIntoDto
+open JsonIntoDtm
 
-let readDataFromJsonTP () : Result<PersonJsonIntoDto list, string> =    
+let readDataFromJsonTP () : Result<PersonJsonIntoDtm list, string> =    
     
     try    
         let sample = JsonProviderTP.Load @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Json\JsonFile\jsonNightwish2013.json"
