@@ -1,9 +1,10 @@
 ﻿namespace EmbeddedTP
-
 open System
 open FSharp.Data
 
 module EmbeddedTP =
+
+    type EmbeddedTPMarker = EmbeddedTPMarker
 
     let [<Literal>] ResolutionFolder = __SOURCE_DIRECTORY__
       
@@ -13,14 +14,16 @@ module EmbeddedTP =
     type JsonProviderTP =
         JsonProvider<"Json/jsonNightwish2013.json", EmbeddedResource = "EmbeddedTP, EmbeddedTP.Json.jsonNightwish2013.json", ResolutionFolder = ResolutionFolder>
 
+#if DEBUG
     let pathXml = 
         try
-            System.IO.Path.Combine(ResolutionFolder, @"Xml/xmlNightwish2013.xml")
+            Path.Combine(ResolutionFolder, @"Xml/xmlNightwish2013.xml")
         with
-        |_ -> String.Empty
+        | _ -> String.Empty
 
     let pathJson = 
         try
-            System.IO.Path.Combine(ResolutionFolder, @"Json/jsonNightwish2013.json")
+            Path.Combine(ResolutionFolder, @"Json/jsonNightwish2013.json")
         with
-        |_ -> String.Empty
+        | _ -> String.Empty
+#endif

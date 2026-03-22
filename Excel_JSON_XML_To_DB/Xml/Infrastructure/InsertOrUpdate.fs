@@ -157,7 +157,7 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtoXmlIntoDb lis
                                             | true  -> return! Error "No rows were affected by the insert or update operation"  
                                             | false -> return ()    
                                         with 
-                                        | ex -> return! Error (sprintf "Row failed: %s" ex.Message)
+                                        | ex -> return! Error (sprintf "Row failed: %s" <| string ex.Message)
                                     }
                             )
                         |> List.sequenceAsyncResultM            // stops at first Error, returns Async<Result<unit list, string>>

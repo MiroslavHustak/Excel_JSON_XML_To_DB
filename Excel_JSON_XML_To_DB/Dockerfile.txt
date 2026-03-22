@@ -1,0 +1,7 @@
+﻿docker build -t excel-json_xml_to_db . //lowercase
+docker run -it excel-json_xml_to_db
+
+1. **Marker type** in `Library.fs` — because erased type providers leave no runtime type, so `typeof<XmlProviderTP>` pointed to CoreLib instead of `EmbeddedTP.dll`
+2. **`LogicalName`** in `EmbeddedTP.fsproj` — to give the embedded resources predictable names
+3. **`typeof<EmbeddedTPMarker>.Assembly`** — to correctly locate `EmbeddedTP.dll` at runtime
+4. **`#if DEBUG`** guards — so file path code never runs in the container

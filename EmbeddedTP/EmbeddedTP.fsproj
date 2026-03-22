@@ -5,10 +5,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Xml\xmlNightwish2013.xml">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<LogicalName>EmbeddedTP.Xml.xmlNightwish2013.xml</LogicalName>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Json\jsonNightwish2013.json">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<LogicalName>EmbeddedTP.Json.jsonNightwish2013.json</LogicalName>
 		</EmbeddedResource>
 		<Compile Include="Library.fs" />
 	</ItemGroup>

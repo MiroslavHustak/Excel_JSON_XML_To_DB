@@ -23,7 +23,27 @@ open TransformationLayerXml
 
 
 [<EntryPoint>] 
-let main argv =       
+let main argv =    
+
+    (*
+    // TEMP — remove after debugging
+
+    printfn "STARTING"
+    // list ALL loaded assemblies and their resources
+    System.AppDomain.CurrentDomain.GetAssemblies()
+    |> Array.iter
+        (fun asm 
+            ->
+            let resources = asm.GetManifestResourceNames()
+            match resources.Length > 0 with
+            | true 
+                ->
+                printfn "\nAssembly: %s" <| asm.GetName().Name
+                resources |> Array.iter (printfn "  -> %s")
+            | false
+                -> ()   
+        )
+    *)
        
     //let fullPath = @"e:\source\repos\Excel_JSON_XML_To_DB\Excel_JSON_XML_To_DB\Excel\ExcelFile\excelNightwish2013.xlsx"
     
@@ -86,7 +106,7 @@ let main argv =
                 | Ok connection 
                     ->
                     use connection = connection 
-                    return! insertOrUpdateAsync persons (async { return Ok connection })
+                    return! insertOrUpdateAsyncFailFast persons (async { return Ok connection })
             }
         |> Async.RunSynchronously
     
