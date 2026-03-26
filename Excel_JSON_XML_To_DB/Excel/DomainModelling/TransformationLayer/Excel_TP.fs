@@ -20,6 +20,16 @@ let readDataFromExcelTP () : Result<PersonExcelIntoDtm list, string> =
         let rowCount = rows.Length
         let listRange = [ 0 .. rowCount - 1 ]
 
+        let rc item =
+            match item with 
+            | 0.0 
+                -> 
+                None
+            | rc
+                -> 
+                let s = int64 rc |> string
+                Some (s.PadLeft(9, '0'))
+
         let result = 
             // tail-recursive
             let rec loop list acc =  
@@ -33,7 +43,7 @@ let readDataFromExcelTP () : Result<PersonExcelIntoDtm list, string> =
                         {
                             Jmeno         = rows.[i].Jmeno    |> Option.ofNullEmptySpace
                             Prijmeni      = rows.[i].Prijmeni |> Option.ofNullEmptySpace
-                            RC            = rows.[i].RC       |> Option.ofNullEmptySpace |> Option.map string
+                            RC            = rc rows.[i].RC    |> Option.map string
                             DatumNarozeni = 
                                 match rows.[i].DatumNarozeni with  //TypeProvider returns MM/dd/yyyy — month first (US locale)
                                 | d when d = DateTime.MinValue -> None

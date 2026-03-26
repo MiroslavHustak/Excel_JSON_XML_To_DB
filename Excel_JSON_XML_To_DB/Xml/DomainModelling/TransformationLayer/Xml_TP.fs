@@ -56,6 +56,13 @@ let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =
                 let! (sample : XmlProviderTP.TabA) = sample |> Option.ofNull 
                 let! data = sample.Rows |> Option.ofNull 
                 
+                let rc item =
+                    match item with 
+                    | 0L -> 
+                        None
+                    | rc -> 
+                        let s = string rc
+                        Some (s.PadLeft(9, '0')) 
                 return 
                     data
                     |> Array.Parallel.map 
@@ -64,7 +71,7 @@ let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =
                             {
                                 Jmeno         = item.Jmeno |> Option.ofNullEmptySpace
                                 Prijmeni      = item.Prijmeni |> Option.ofNullEmptySpace
-                                RC            = item.Rc |> Option.ofNullEmptySpace |> Option.map string
+                                RC            = rc item.Rc |> Option.map string
                                 DatumNarozeni = 
                                     match item.DatumNarozeni with  
                                     | d when d = DateTime.MinValue -> None
