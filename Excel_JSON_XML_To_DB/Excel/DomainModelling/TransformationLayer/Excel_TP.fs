@@ -1,5 +1,6 @@
 ﻿module Excel_TP
 
+open System
 open FSharp.Interop.Excel
 
 open Helpers
@@ -30,10 +31,13 @@ let readDataFromExcelTP () : Result<PersonExcelIntoDtm list, string> =
                     ->
                     let person = 
                         {
-                            Jmeno         = rows.[i].Jmeno |> Option.ofNull
-                            Prijmeni      = rows.[i].Prijmeni |> Option.ofNull
-                            RC            = rows.[i].RC |> Option.ofNull |> Option.map string
-                            DatumNarozeni = rows.[i].DatumNarozeni |> Option.ofNull //TypeProvider returns MM/dd/yyyy — month first (US locale)
+                            Jmeno         = rows.[i].Jmeno    |> Option.ofNullEmptySpace
+                            Prijmeni      = rows.[i].Prijmeni |> Option.ofNullEmptySpace
+                            RC            = rows.[i].RC       |> Option.ofNullEmptySpace |> Option.map string
+                            DatumNarozeni = 
+                                match rows.[i].DatumNarozeni with  //TypeProvider returns MM/dd/yyyy — month first (US locale)
+                                | d when d = DateTime.MinValue -> None
+                                | d                            -> Some d
                         }
 
                     loop tail (person :: acc)

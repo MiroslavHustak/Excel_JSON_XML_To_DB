@@ -45,11 +45,12 @@
 	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="ExcelProvider" Version="3.0.0" />
-		<PackageReference Include="FSharp.Data" Version="6.4.0" />
+		<PackageReference Include="FSharp.Data" Version="8.1.3" />
 		<PackageReference Include="FsToolkit.ErrorHandling" Version="5.2.0" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\DB_To_Excel\DB_To_Excel.fsproj" />
 		<ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
 	</ItemGroup>
 </Project>

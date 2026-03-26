@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Excel_JSON_XML_To_DB", "Exc
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EmbeddedTP", "EmbeddedTP\EmbeddedTP.fsproj", "{F3B7391F-09D7-49DD-93F0-C813907DE02C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DB_To_Excel", "DB_To_Excel\DB_To_Excel.fsproj", "{5C68CCE5-680E-4C0E-8337-E2322126CF73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F3B7391F-09D7-49DD-93F0-C813907DE02C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3B7391F-09D7-49DD-93F0-C813907DE02C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3B7391F-09D7-49DD-93F0-C813907DE02C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C68CCE5-680E-4C0E-8337-E2322126CF73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C68CCE5-680E-4C0E-8337-E2322126CF73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C68CCE5-680E-4C0E-8337-E2322126CF73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C68CCE5-680E-4C0E-8337-E2322126CF73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
