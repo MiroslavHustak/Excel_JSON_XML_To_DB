@@ -14,7 +14,8 @@ let readDataFromExcelClosedXML (filePath: string) : Result<PersonExcelIntoDtm li
     
         rows
         |> Seq.map
-            (fun row ->
+            (fun row 
+                ->
                 {
                     //ClosedXML's GetString() returns "" for empty cells, not null. So Option.ofNull will give you Some "" instead of None.
                     Jmeno         = row.Cell(1).GetString() |> Option.ofNullEmptySpace

@@ -33,13 +33,14 @@ let internal writeDataIntoExcelWithFsExcel (filePath: string) (data: Async<Resul
                             Cell [ String (
                                               match person.DatumNarozeni with
                                               | d when d = DateTime.MinValue -> "N/A"
-                                              | d                            -> d.ToString("dd.MM.yyyy")
+                                              | d                            -> d.ToString "dd.MM.yyyy"
                                           )
                                    Next NewRow 
                                  ]
                         ]
                     )
 
-            headerCells @ dataCells
-            |> Render.AsFile filePath
+            return
+                headerCells @ dataCells
+                |> Render.AsFile filePath
         }

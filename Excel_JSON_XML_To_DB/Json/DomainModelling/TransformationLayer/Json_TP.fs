@@ -1,5 +1,7 @@
 ﻿module Json_TP
 
+open System
+
 open FsToolkit.ErrorHandling    
 
 open EmbeddedTP.EmbeddedTP
@@ -23,10 +25,13 @@ let readDataFromJsonTP () : Result<PersonJsonIntoDtm list, string> =
                         (fun item 
                             -> 
                             {
-                                Jmeno         = item.Jmeno |> Option.ofNull
-                                Prijmeni      = item.Prijmeni |> Option.ofNull
-                                RC            = item.Rc |> Option.ofNull |> Option.map string
-                                DatumNarozeni = item.DatumNarozeni |> Option.ofNull 
+                                Jmeno         = item.Jmeno |> Option.ofNullEmptySpace
+                                Prijmeni      = item.Prijmeni |> Option.ofNullEmptySpace
+                                RC            = item.Rc |> Option.ofNullEmptySpace |> Option.map string
+                                DatumNarozeni = 
+                                    match item.DatumNarozeni with  
+                                    | d when d = DateTime.MinValue -> None
+                                    | d                            -> Some d
                             } 
                         )
                     |> Array.toList

@@ -36,7 +36,7 @@ let internal selectAsync (connection: Async<Result<SqlConnection, string>>) tabl
                                 ->
                                 async 
                                     {
-                                        let! successfullyRead = reader.ReadAsync() |> Async.AwaitTask //use! supposedly to behave improperly under AsyncSeq
+                                        let! successfullyRead = reader.ReadAsync() |> Async.AwaitTask //use! supposedly to behave improperly in the AsyncSeq loop
 
                                         match successfullyRead with
                                         | true  
