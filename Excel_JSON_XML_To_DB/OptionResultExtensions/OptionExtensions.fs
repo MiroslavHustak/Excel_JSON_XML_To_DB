@@ -26,7 +26,7 @@ module Option =
 
     //Technically impure because of System.Object.ReferenceEquals
     //Pragmatically pure as there are no side effects        
-    let inline internal ofNull (value : 'nullableValue) =
+    let inline internal ofNull' (value : 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  -> None
         | false -> Some value     

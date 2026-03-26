@@ -16,8 +16,8 @@ let readDataFromJsonTP () : Result<PersonJsonIntoDtm list, string> =
      
         option
             {
-                let! (sample : JsonProviderTP.Root) = sample |> Option.ofNull 
-                let! data = sample.List |> Option.ofNull 
+                let! (sample : JsonProviderTP.Root) = sample |> Option.ofNull' 
+                let! data = sample.List |> Option.ofNull' 
 
                 let rc item =
                     match item with 

@@ -21,6 +21,13 @@ open InsertOrUpdateFromXml
 open TransformationLayerXml
 //*****************************
 
+//************ Db to Excel ************
+
+open DbToExcel
+open TransformationLayerDbToExcel
+
+//*****************************
+
 
 [<EntryPoint>] 
 let main argv =    
@@ -113,5 +120,20 @@ let main argv =
     match result with
     | Ok _      -> printfn "\nInserting or updating successful"
     | Error err -> err |> printfn "\n%s"
-   
+
+
+    //*********** DB to Excel ************
+    let result4 =
+        async 
+            {
+                let tableName = "TabA"
+                let data = getAsyncConnection >> transformAsync <| () <| tableName
+                return! writeDataIntoExcelWithFsExcel @"e:\source\repos\Excel_JSON_XML_To_DB\Nightwish2013_FromDb.xlsx" data
+            }
+        |> Async.RunSynchronously
+    
+    match result4 with
+    | Ok _      -> printfn "\nTransferring data from DB into Excel successful"
+    | Error err -> err |> printfn "\n%s"  
+    
     0   

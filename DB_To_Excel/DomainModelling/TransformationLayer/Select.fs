@@ -63,8 +63,10 @@ let internal selectAsync (connection: Async<Result<SqlConnection, string>>) tabl
                     return! Ok results
 
                 finally
-                    reader.DisposeAsync().AsTask() |> Async.AwaitTask |> Async.StartImmediate
-
+                    reader.DisposeAsync().AsTask()
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate
+                    
             with
             | ex -> return! Error <| string ex.Message
         }

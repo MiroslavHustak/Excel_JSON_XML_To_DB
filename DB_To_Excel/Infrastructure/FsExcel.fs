@@ -1,4 +1,4 @@
-﻿module ExcelClosedXML
+﻿module DbToExcel
 
 open System
 
@@ -15,10 +15,10 @@ let internal writeDataIntoExcelWithFsExcel (filePath: string) (data: Async<Resul
 
             let headerCells =
                 [
-                    Cell [ String "Jmeno" ] 
-                    Cell [ String "Prijmeni" ]
-                    Cell [ String "RC" ]
-                    Cell [ String "Datum Narozeni"; Next NewRow ]
+                    Cell [ String "Jméno" ] 
+                    Cell [ String "Příjmení" ]
+                    Cell [ String "Rodné číslo" ]
+                    Cell [ String "Datum narození"; Next NewRow ]
                 ]
 
             let dataCells =

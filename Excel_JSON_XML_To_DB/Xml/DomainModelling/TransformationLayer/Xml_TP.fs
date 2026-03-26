@@ -20,8 +20,8 @@ let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =
 
         option
             {
-                let! (sample : XmlProviderTP.TabA) = sample |> Option.ofNull 
-                let! data = sample.Rows |> Option.ofNull 
+                let! (sample : XmlProviderTP.TabA) = sample |> Option.ofNull' 
+                let! data = sample.Rows |> Option.ofNull' 
                 
                 return 
                     data
@@ -53,8 +53,8 @@ let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =
      
         option
             {
-                let! (sample : XmlProviderTP.TabA) = sample |> Option.ofNull 
-                let! data = sample.Rows |> Option.ofNull 
+                let! (sample : XmlProviderTP.TabA) = sample |> Option.ofNull' 
+                let! data = sample.Rows |> Option.ofNull' 
                 
                 let rc item =
                     match item with 
