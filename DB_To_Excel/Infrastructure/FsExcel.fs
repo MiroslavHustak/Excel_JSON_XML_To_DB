@@ -11,36 +11,40 @@ let internal writeDataIntoExcelWithFsExcel (filePath: string) (data: Async<Resul
 
     asyncResult 
         {
-            let! persons = data
+            try
+                let! persons = data
 
-            let headerCells =
-                [
-                    Cell [ String "Jméno" ] 
-                    Cell [ String "Příjmení" ]
-                    Cell [ String "Rodné číslo" ]
-                    Cell [ String "Datum narození"; Next NewRow ]
-                ]
+                let headerCells =
+                    [
+                        Cell [ String "Jméno" ] 
+                        Cell [ String "Příjmení" ]
+                        Cell [ String "Rodné číslo" ]
+                        Cell [ String "Datum narození"; Next NewRow ]
+                    ]
 
-            let dataCells =
-                persons
-                |> List.collect
-                    (fun person 
-                        ->
-                        [
-                            Cell [ String person.Jmeno ]
-                            Cell [ String person.Prijmeni ]
-                            Cell [ String person.RC ]
-                            Cell [ String (
-                                              match person.DatumNarozeni with
-                                              | d when d = DateTime.MinValue -> "N/A"
-                                              | d                            -> d.ToString "dd.MM.yyyy"
-                                          )
-                                   Next NewRow 
-                                 ]
-                        ]
-                    )
+                let dataCells =
+                    persons
+                    |> List.collect
+                        (fun person 
+                            ->
+                            [
+                                Cell [ String person.Jmeno ]
+                                Cell [ String person.Prijmeni ]
+                                Cell [ String person.RC ]
+                                Cell [ String (
+                                                  match person.DatumNarozeni with
+                                                  | d when d = DateTime.MinValue -> "N/A"
+                                                  | d                            -> d.ToString "dd.MM.yyyy"
+                                              )
+                                       Next NewRow 
+                                     ]
+                            ]
+                        )
 
-            return
-                headerCells @ dataCells
-                |> Render.AsFile filePath
+                return
+                    headerCells @ dataCells
+                    |> Render.AsFile filePath
+
+            with 
+            | ex -> return! Error <| string ex.Message
         }

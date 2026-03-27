@@ -110,11 +110,11 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmExcelIntoDb list, str
 let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmExcelIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult 
-        {
-            let! persons = persons      
-            let! connection = connection  //single let! unwraps both layers at once in case of nested Async<Result<>> — no need for nested let!s 
-
+        {       
             try
+                let! persons = persons      
+                let! connection = connection  //single let! unwraps both layers at once in case of nested Async<Result<>> — no need for nested let!s 
+
                 let isolationLevel = IsolationLevel.Serializable
 
                 let! transaction =
