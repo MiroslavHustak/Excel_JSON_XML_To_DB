@@ -44,6 +44,8 @@ let readDataFromXmlTP () : Result<PersonXmlIntoDtm list, string> =
 
         #else
 
+        // No reflection-free alternative exists.
+        // Runs once at startup only.
         let assembly = typeof<EmbeddedTP.EmbeddedTP.EmbeddedTPMarker>.Assembly
         
         // this will now find the resource
