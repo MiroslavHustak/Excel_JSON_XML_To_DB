@@ -41,7 +41,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, strin
     asyncResult 
         {
             let! persons = persons      
-            let! connection = connection  //single let! unwraps both layers at once in case of nested Async<Result<>> — no need for nested let!s 
+            let! connection = connection  
 
             try
                 let isolationLevel = IsolationLevel.Serializable
@@ -113,7 +113,7 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb lis
     asyncResult 
         {
             let! persons = persons      
-            let! connection = connection  //single let! unwraps both layers at once in case of nested Async<Result<>> — no need for nested let!s 
+            let! connection = connection  
 
             try
                 let isolationLevel = IsolationLevel.Serializable
