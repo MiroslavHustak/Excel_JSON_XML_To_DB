@@ -57,6 +57,12 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, stri
                             -> Ok sqlTx
                     | _     -> Error "Unexpected transaction type"
 
+                let safeRollback () =
+                    try
+                        transaction.Rollback()
+                    with 
+                    | _ -> ()
+
                 try
                     use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
 
@@ -94,15 +100,21 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, stri
                     | true  
                         ->
                         try 
-                            transaction.Rollback() 
+                            safeRollback() 
                         with
                         | _ -> ()
 
                         return! Error "One or more rows failed to insert — transaction rolled back."
                     | false 
                         ->
-                        transaction.Commit()
-                        return! Ok ()
+                        try
+                            transaction.Commit()
+                            return! Ok ()
+                        with 
+                        | ex
+                            ->
+                            safeRollback()
+                            return! Error (sprintf "Commit failed: %s" <| string ex.Message)
                 finally
                     transaction.Dispose()
             with
