@@ -33,7 +33,7 @@ let internal selectAsync (connection: Async<Result<SqlConnection, string>>) tabl
                         ()
                         |> AsyncSeq.unfoldAsync  // Generator is repeatedly called until it returns None.
                             (fun () 
-                                ->
+                                -> 
                                 async 
                                     {
                                         let! successfullyRead = reader.ReadAsync() |> Async.AwaitTask //use! supposedly to behave improperly in the AsyncSeq loop

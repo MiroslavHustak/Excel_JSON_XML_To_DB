@@ -93,7 +93,11 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, stri
                     match results |> Array.contains false with
                     | true  
                         ->
-                        transaction.Rollback()
+                        try 
+                            transaction.Rollback() 
+                        with
+                        | _ -> ()
+
                         return! Error "One or more rows failed to insert — transaction rolled back."
                     | false 
                         ->
@@ -111,64 +115,75 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
 
     asyncResult 
         {
-            let! persons = persons      
-            let! connection = connection  
-
             try
+                let! persons = persons
+                let! connection = connection
+
                 let isolationLevel = IsolationLevel.Serializable
 
                 let! transaction =
                     connection.BeginTransactionAsync(isolationLevel).AsTask()
                     |> Async.AwaitTask
 
-                let! transaction = 
+                let! transaction =
                     match transaction with
-                    | :? SqlTransaction 
-                        as sqlTx 
-                            -> Ok sqlTx
-                    | _     -> Error "Unexpected transaction type"
+                    | :? SqlTransaction as sqlTx 
+                        -> Ok sqlTx
+                    | _ -> Error "Unexpected transaction type"
+
+                let safeRollback () =
+                    try
+                        transaction.Rollback()
+                    with 
+                    | _ -> ()
 
                 try
                     use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
-                    let parameterDate = SqlParameter()
-                    parameterDate.ParameterName <- "@DatumNarozeni"
-                    parameterDate.SqlDbType <- SqlDbType.Date
-            
-                    let! _ =                                    
+                    let parameterDate = SqlParameter("@DatumNarozeni", SqlDbType.Date)
+
+                    let! _ =
                         persons
                         |> List.map 
                             (fun item 
                                 ->
                                 asyncResult
-                                    {                        
+                                    {
                                         try
                                             cmdInsert.Parameters.Clear()
-                                            cmdInsert.Parameters.AddWithValue("@Jmeno",    item.Jmeno)    |> ignore<SqlParameter>
-                                            cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore<SqlParameter>
-                                            cmdInsert.Parameters.AddWithValue("@RC",       item.RC)       |> ignore<SqlParameter>
-            
+                                            cmdInsert.Parameters.AddWithValue("@Jmeno", item.Jmeno) |> ignore
+                                            cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore
+                                            cmdInsert.Parameters.AddWithValue("@RC", item.RC) |> ignore
+
                                             parameterDate.Value <- item.DatumNarozeni
-                                            cmdInsert.Parameters.Add parameterDate |> ignore<SqlParameter>
-            
-                                            let! affected = cmdInsert.ExecuteNonQueryAsync() |> Async.AwaitTask
+                                            cmdInsert.Parameters.Add parameterDate |> ignore
+
+                                            let! affected =
+                                                cmdInsert.ExecuteNonQueryAsync()
+                                                |> Async.AwaitTask
 
                                             match affected = 0 with
-                                            | true  -> return! Error "No rows were affected by the insert or update operation"  
-                                            | false -> return ()    
-                                        with 
-                                        | ex -> return! Error (sprintf "Row failed: %s" <| string ex.Message)
+                                            | true  -> return! Error "No rows were affected by the insert or update operation"
+                                            | false -> return ()
+
+                                        with
+                                        | ex -> return! Error (sprintf "Row failed: %s" ex.Message)
                                     }
                             )
-                        |> List.sequenceAsyncResultM            // stops at first Error, returns Async<Result<unit list, string>>
-            
-                    // only reached if all rows succeeded
-                    transaction.Commit()
+                        |> List.sequenceAsyncResultM
+                        |> AsyncResult.mapError (fun e -> safeRollback(); e)
 
-                    return! Ok ()
+                    try
+                        transaction.Commit()
+                        return! Ok ()
+                    with 
+                    | ex
+                        ->
+                        safeRollback()
+                        return! Error (sprintf "Commit failed: %s" ex.Message)
+
                 finally
                     transaction.Dispose()
-            with
-            | ex
-                ->
-                return! Error (sprintf "Transaction failed: %s" <| string ex.Message)
+
+            with 
+            | ex -> return! Error (sprintf "Transaction failed: %s" ex.Message)
         }
