@@ -1,8 +1,10 @@
 ﻿module InsertOrUpdateFromXml
 
+open System
 open System.Data
 open Microsoft.Data.SqlClient
 
+open FSharp.Control
 open FsToolkit.ErrorHandling
 
 open DtmXmlIntoDb
@@ -47,7 +49,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
             let! transaction =
                 match transaction with
                 | :? SqlTransaction as sqlTx -> Ok sqlTx
-                | _                          -> Error "Unexpected transaction type"
+                | _                          -> Error "Unexpected transaction type"           
 
             let safeRollback () =
                 try
@@ -55,7 +57,15 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     | true  -> Ok ()
                     | false -> Ok <| transaction.Rollback()
                 with
-                | ex -> Error <| string ex.Message
+                | :? InvalidOperationException as ex 
+                    when ex.Message.Contains("completed", StringComparison.OrdinalIgnoreCase) 
+                      || ex.Message.Contains("no longer usable", StringComparison.OrdinalIgnoreCase) 
+                      ->
+                      // Transaction was already rolled back by SQL Server — this is expected and harmless
+                      Ok()
+                | ex 
+                    ->
+                    Error (sprintf "Rollback failed: %s" <| string ex.Message)
 
             try
                 try
@@ -82,6 +92,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                 transaction.Dispose()
         }
 
+//version with cmdInsert.Parameters.Clear()
 let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult
@@ -132,6 +143,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, strin
                     )
         }
 
+//version without cmdInsert.Parameters.Clear(), but with parameters added only once and then updated with new values
 let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
 
     asyncResult
@@ -149,6 +161,13 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb lis
                             {
                                 use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
 
+                                cmdInsert.Parameters.Add("@Jmeno", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                cmdInsert.Parameters.Add("@Prijmeni", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                cmdInsert.Parameters.Add("@RC", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                
+                                let paramDate = SqlParameter("@DatumNarozeni", SqlDbType.Date)
+                                cmdInsert.Parameters.Add paramDate |> ignore<SqlParameter>
+
                                 let! _ =
                                     persons
                                     |> List.map
@@ -157,15 +176,10 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb lis
                                             asyncResult
                                                 {
                                                     try
-                                                        cmdInsert.Parameters.Clear()
-
-                                                        cmdInsert.Parameters.AddWithValue("@Jmeno", item.Jmeno) |> ignore<SqlParameter>
-                                                        cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore<SqlParameter>
-                                                        cmdInsert.Parameters.AddWithValue("@RC", item.RC) |> ignore<SqlParameter>
-
-                                                        let parameterDate = SqlParameter("@DatumNarozeni", SqlDbType.Date)
-                                                        parameterDate.Value <- item.DatumNarozeni
-                                                        cmdInsert.Parameters.Add parameterDate |> ignore<SqlParameter>
+                                                        cmdInsert.Parameters["@Jmeno"].Value    <- item.Jmeno
+                                                        cmdInsert.Parameters["@Prijmeni"].Value <- item.Prijmeni
+                                                        cmdInsert.Parameters["@RC"].Value       <- item.RC
+                                                        paramDate.Value                         <- item.DatumNarozeni
 
                                                         let! affected =
                                                             cmdInsert.ExecuteNonQueryAsync()
@@ -182,6 +196,61 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb lis
                                     |> List.sequenceAsyncResultM
 
                                 return! Ok ()
+                            }
+                    )
+        }
+
+//shall be the equivalent of insertOrUpdateAsync using Async.Sequential, for educational purposes only
+let internal insertOrUpdateAsyncStream (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
+
+    asyncResult
+        {
+            let! persons = persons
+            let! connection = connection
+
+            let isolationLevel = IsolationLevel.Serializable
+
+            return!
+                withTransaction connection isolationLevel
+                    (fun transaction
+                        ->
+                        asyncResult
+                            {
+                                use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
+                                
+                                cmdInsert.Parameters.Add("@Jmeno", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                cmdInsert.Parameters.Add("@Prijmeni", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                cmdInsert.Parameters.Add("@RC", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
+                                                                
+                                let paramDate = SqlParameter("@DatumNarozeni", SqlDbType.Date)
+                                cmdInsert.Parameters.Add paramDate |> ignore<SqlParameter>
+
+                                let! results =
+                                    persons
+                                    |> List.toSeq
+                                    |> AsyncSeq.ofSeq
+                                    |> AsyncSeq.mapAsync
+                                        (fun item
+                                            ->
+                                            async
+                                                {
+                                                    try
+                                                        cmdInsert.Parameters["@Jmeno"].Value    <- item.Jmeno
+                                                        cmdInsert.Parameters["@Prijmeni"].Value <- item.Prijmeni
+                                                        cmdInsert.Parameters["@RC"].Value       <- item.RC
+                                                        paramDate.Value                         <- item.DatumNarozeni
+
+                                                        let! affected = cmdInsert.ExecuteNonQueryAsync() |> Async.AwaitTask
+                                                        return affected > 0
+                                                    with
+                                                    | _ -> return false
+                                                }
+                                        )
+                                    |> AsyncSeq.toArrayAsync
+
+                                match results |> Array.contains false with
+                                | true  -> return! Error "Operation failed (rolled back)"
+                                | false -> return! Ok ()
                             }
                     )
         }
