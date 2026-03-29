@@ -77,7 +77,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     ->
                     match safeRollback() with
                     | Ok ()   -> return! Error (sprintf "Transaction failed: %s" <| string ex.Message)
-                    | Error e -> return! Error (sprintf "Transaction failed and rollback also failed: %s %s" <| string ex.Message <| e)
+                    | Error e -> return! Error (sprintf "Transaction failed: %s | Rollback also failed: %s" <| string ex.Message <| e)
 
             finally
                 transaction.DisposeAsync().AsTask() 
