@@ -80,7 +80,9 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     | Error e -> return! Error (sprintf "Transaction failed and rollback also failed: %s %s" <| string ex.Message <| e)
 
             finally
-                transaction.Dispose()
+                transaction.DisposeAsync().AsTask() 
+                |> Async.AwaitTask
+                |> Async.StartImmediate
         }
 
 //version with cmdInsert.Parameters.Clear()
