@@ -6,6 +6,7 @@ open Microsoft.Data.SqlClient
    
 let [<Literal>] private connStringSomee =
     @"
+
     "
 //localhost
 let [<Literal>] private connStringLocal = @"Data Source=Misa\SQLEXPRESS;Initial Catalog=nterapieLocal;Integrated Security=True"
