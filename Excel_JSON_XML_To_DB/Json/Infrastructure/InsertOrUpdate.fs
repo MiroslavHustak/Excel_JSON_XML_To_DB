@@ -150,12 +150,12 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
                                     {
                                         try
                                             cmdInsert.Parameters.Clear()
-                                            cmdInsert.Parameters.AddWithValue("@Jmeno", item.Jmeno) |> ignore
-                                            cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore
-                                            cmdInsert.Parameters.AddWithValue("@RC", item.RC) |> ignore
+                                            cmdInsert.Parameters.AddWithValue("@Jmeno", item.Jmeno) |> ignore<SqlParameter>
+                                            cmdInsert.Parameters.AddWithValue("@Prijmeni", item.Prijmeni) |> ignore<SqlParameter>
+                                            cmdInsert.Parameters.AddWithValue("@RC", item.RC) |> ignore<SqlParameter>
 
                                             parameterDate.Value <- item.DatumNarozeni
-                                            cmdInsert.Parameters.Add parameterDate |> ignore
+                                            cmdInsert.Parameters.Add parameterDate |> ignore<SqlParameter>
 
                                             let! affected =
                                                 cmdInsert.ExecuteNonQueryAsync()
@@ -166,7 +166,7 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
                                             | false -> return ()
 
                                         with
-                                        | ex -> return! Error (sprintf "Row failed: %s" ex.Message)
+                                        | ex -> return! Error (sprintf "Row failed: %s" <| string ex.Message)
                                     }
                             )
                         |> List.sequenceAsyncResultM
@@ -179,11 +179,11 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
                     | ex
                         ->
                         safeRollback()
-                        return! Error (sprintf "Commit failed: %s" ex.Message)
+                        return! Error (sprintf "Commit failed: %s" <| string ex.Message)
 
                 finally
                     transaction.Dispose()
 
             with 
-            | ex -> return! Error (sprintf "Transaction failed: %s" ex.Message)
+            | ex -> return! Error (sprintf "Transaction failed: %s" <| string ex.Message)
         }
