@@ -59,7 +59,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                 with
                 | :? InvalidOperationException as ex 
                     when ex.Message.Contains("no longer usable", StringComparison.OrdinalIgnoreCase) 
-                      // Transaction was already rolled back/committed by SQL Server — harmless
+                    // Transaction was already rolled back/committed by SQL Server — harmless
                     ->                      
                     Ok()
                 | ex 
