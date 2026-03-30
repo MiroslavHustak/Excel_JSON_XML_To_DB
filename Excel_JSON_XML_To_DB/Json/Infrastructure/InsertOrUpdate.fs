@@ -58,11 +58,10 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     | false -> Ok <| transaction.Rollback()
                 with
                 | :? InvalidOperationException as ex 
-                    when ex.Message.Contains("completed", StringComparison.OrdinalIgnoreCase) 
-                      || ex.Message.Contains("no longer usable", StringComparison.OrdinalIgnoreCase) 
-                      ->
-                      // Transaction was already rolled back by SQL Server — this is expected and harmless
-                      Ok()
+                    when ex.Message.Contains("no longer usable", StringComparison.OrdinalIgnoreCase) 
+                    // Transaction was already rolled back/committed by SQL Server — harmless
+                    ->                      
+                    Ok()
                 | ex 
                     ->
                     Error (sprintf "Rollback failed: %s" <| string ex.Message)
@@ -89,9 +88,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     | Error e -> return! Error (sprintf "Transaction failed: %s | Rollback also failed: %s" <| string ex.Message <| e)
 
             finally
-                transaction.DisposeAsync().AsTask() 
-                |> Async.AwaitTask
-                |> Async.StartImmediate
+                transaction.Dispose()              
         }
 
 //version with cmdInsert.Parameters.Clear()
