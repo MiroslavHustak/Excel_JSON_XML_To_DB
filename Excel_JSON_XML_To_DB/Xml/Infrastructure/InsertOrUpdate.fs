@@ -79,7 +79,6 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                         match safeRollback() with
                         | Ok ()   -> return! Error (sprintf "Commit failed: %s" <| string ex.Message)
                         | Error e -> return! Error (sprintf "Commit failed: %s | Rollback also failed: %s" <| string ex.Message <| e)
-
                 with
                 | ex
                     ->
