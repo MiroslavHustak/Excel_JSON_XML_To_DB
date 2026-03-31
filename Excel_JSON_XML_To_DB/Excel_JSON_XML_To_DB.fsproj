@@ -15,7 +15,6 @@
 	<ItemGroup>
 		<Content Include="Dockerfile.txt" />
 		<Content Include="Dockerfile" />
-		<Compile Include="Connections\Connection.fs" />
 		<Compile Include="CEBuilders\CEBuilders.fs" />
 		<Compile Include="OptionResultExtensions\OptionExtensions.fs" />
 		<Compile Include="OptionResultExtensions\ResultExtensions.fs" />
@@ -50,6 +49,7 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\ConnectionToDB\ConnectionToDB.fsproj" />
 		<ProjectReference Include="..\DB_To_Excel\DB_To_Excel.fsproj" />
 		<ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
 	</ItemGroup>

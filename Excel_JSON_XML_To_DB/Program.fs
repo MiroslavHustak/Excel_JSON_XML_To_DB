@@ -1,6 +1,6 @@
 ﻿module Start
 
-open Connection
+open ConnectionToDB.Connection  
 
 //*********** Excel************
 //open Excel_TP
@@ -31,6 +31,18 @@ open TransformationLayerDbToExcel
 
 [<EntryPoint>] 
 let main argv =    
+
+    let connectionAsync =
+          async 
+              {
+                  match! getAsyncConnection() with
+                  | Error err 
+                      ->
+                      return Error err
+                  | Ok connection 
+                      ->
+                      return! async { return Ok connection }
+              }          
 
     (*
     // TEMP — remove after debugging
@@ -88,52 +100,59 @@ let main argv =
     *)
     //*****************************
 
-    //*********** JSON ************
+    //Example of a connection close strategy
+    match connectionAsync |> Async.RunSynchronously with
+    | Error err1 
+        ->
+        match closeAsyncConnection connectionAsync |> Async.RunSynchronously with
+        | Ok _       -> printfn "\nConnection closed successfully after experiencing : %s." err1
+        | Error err2 -> printfn "\nConnection closing failure  (%s) after experiencing : %s." err2 err1 
 
-    //let result2 = readDataFromJsonTP() 
-    //result2 |> printfn "%A"
-    //*****************************
+    | Ok connection 
+        ->
+        //*********** JSON ************
 
-     //*********** XML ************
+        //let result2 = readDataFromJsonTP() 
+        //result2 |> printfn "%A"
+        //*****************************
 
-    let result3 = readDataFromXmlTP() 
-    result3 |> printfn "%A"
-    //*****************************
+            //*********** XML ************
+
+        let result3 = readDataFromXmlTP() 
+        result3 |> printfn "%A"
+        //*****************************
    
-    //let persons = transformedListClosedXML fullPath //For an Excel file only
-    let persons = transformedListTP() 
+        //let persons = transformedListClosedXML fullPath //For an Excel file only
+        let persons = transformedListTP() 
 
-    let result =
-        async 
-            {
-                match! getAsyncConnection() with
-                | Error err 
-                    ->
-                    return Error err
-                | Ok connection 
-                    ->
-                    use connection = connection 
+        let result =
+            async 
+                {
                     return! insertOrUpdateAsyncFailFast persons (async { return Ok connection })
-            }
-        |> Async.RunSynchronously
+                }
+            |> Async.RunSynchronously
     
-    match result with
-    | Ok _      -> printfn "\nInserting or updating successful"
-    | Error err -> err |> printfn "\n%s"
+        match result with
+        | Ok _      -> printfn "\nInserting or updating successful"
+        | Error err -> err |> printfn "\n%s"
 
 
-    //*********** DB to Excel ************
-    let result4 =
-        async 
-            {
-                let tableName = "TabA"
-                let data = getAsyncConnection >> transformAsync <| () <| tableName
-                return! writeDataIntoExcelWithFsExcel @"e:\source\repos\Excel_JSON_XML_To_DB\Nightwish2013_FromDb.xlsx" data
-            }
-        |> Async.RunSynchronously
+        //*********** DB to Excel ************
+        let result4 =
+            async 
+                {
+                    let tableName = "TabA"
+                    let data = getAsyncConnection >> transformAsync <| () <| tableName
+                    return! writeDataIntoExcelWithFsExcel @"e:\source\repos\Excel_JSON_XML_To_DB\Nightwish2013_FromDb.xlsx" data
+                }
+            |> Async.RunSynchronously
     
-    match result4 with
-    | Ok _      -> printfn "\nTransferring data from DB into Excel successful"
-    | Error err -> err |> printfn "\n%s"  
+        match result4 with
+        | Ok _      -> printfn "\nTransferring data from DB into Excel successful"
+        | Error err -> err |> printfn "\n%s"  
+        
+        match closeAsyncConnection connectionAsync |> Async.RunSynchronously with
+        | Ok _      -> printfn "\nConnection closed successfully."
+        | Error err -> printfn "\nConnection closing failure: %s." err 
     
     0   

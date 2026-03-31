@@ -23,9 +23,7 @@ module Option =
         function   
         | true  -> Some value  
         | false -> None
-
-    //Technically impure because of System.Object.ReferenceEquals
-    //Pragmatically pure as there are no side effects        
+     
     let inline internal ofNull' (value : 'nullableValue) =
         match System.Object.ReferenceEquals(box value, null) with //boxing a null Nullable<'T> produces an actual null reference
         | true  -> None

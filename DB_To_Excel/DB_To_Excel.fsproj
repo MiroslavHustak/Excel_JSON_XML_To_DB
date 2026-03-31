@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
-    <Compile Include="Connections\Connection.fs" />
     <Compile Include="CEBuilders\CEBuilders.fs" />
     <Compile Include="OptionResultExtensions\OptionExtensions.fs" />
     <Compile Include="OptionResultExtensions\ResultExtensions.fs" />

@@ -88,6 +88,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                     | Error e -> return! Error (sprintf "Transaction failed: %s | Rollback also failed: %s" <| string ex.Message <| e)
 
             finally
+                //Choose your connection close strategy
                 transaction.Dispose()               
         }
 
