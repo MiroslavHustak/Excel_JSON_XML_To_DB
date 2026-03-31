@@ -8,7 +8,7 @@ module Connection =
    
     let [<Literal>] private connStringSomee =
         @"
-        workstation id=Natalie.mssql.somee.com;packet size=4096;user id=Natalie_SQLLogin_2;pwd=qw8b9218pf;data source=Natalie.mssql.somee.com;persist security info=False;initial catalog=Natalie;TrustServerCertificate=True
+
         "
     //localhost
     let [<Literal>] private connStringLocal = @"Data Source=Misa\SQLEXPRESS;Initial Catalog=nterapieLocal;Integrated Security=True"
