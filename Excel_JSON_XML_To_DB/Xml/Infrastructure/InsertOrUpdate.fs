@@ -90,6 +90,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
                 //Choose your connection close strategy
                 transaction.Dispose()               
         }
+    |> AsyncResult.catch (fun ex -> string ex.Message)
 
 //version with cmdInsert.Parameters.Clear()
 let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
@@ -141,6 +142,7 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmXmlIntoDb list, strin
                             }
                     )
         }
+    |> AsyncResult.catch (fun ex -> string ex.Message)
 
 //version without cmdInsert.Parameters.Clear(), but with parameters added only once and then updated with new values
 let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
@@ -198,6 +200,7 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmXmlIntoDb lis
                             }
                     )
         }
+    |> AsyncResult.catch (fun ex -> string ex.Message)
 
 //shall be the equivalent of insertOrUpdateAsync using Async.Sequential, for educational purposes only
 let internal insertOrUpdateAsyncStream (persons: Result<PersonDtmXmlIntoDb list, string>) (connection: Async<Result<SqlConnection, string>>) =
@@ -253,3 +256,4 @@ let internal insertOrUpdateAsyncStream (persons: Result<PersonDtmXmlIntoDb list,
                             }
                     )
         }
+    |> AsyncResult.catch (fun ex -> string ex.Message)

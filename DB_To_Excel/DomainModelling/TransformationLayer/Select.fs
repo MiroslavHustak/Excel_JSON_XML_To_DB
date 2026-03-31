@@ -12,8 +12,7 @@ open DbIntoDtm
 let internal selectAsync (connection: Async<Result<SqlConnection, string>>) tableName = 
         
     asyncResult
-        {
-            
+        {            
             // In SQL Server, table names cannot be parameterized.
             // To prevent SQL injection, tableName shall be a trusted, hard-coded string.
 
