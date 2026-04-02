@@ -54,7 +54,7 @@ let private withTransaction (connection: SqlConnection) (isolationLevel: Isolati
             let safeRollback () =
                 try
                     match isNull transaction.Connection with
-                    | true  -> Ok ()
+                    | true  -> Ok () // Connection is null = transaction already detached = nothing left to roll back — we're already in a clean (or irrecoverably failed) state
                     | false -> Ok <| transaction.Rollback()
                 with
                 | :? InvalidOperationException as ex 
