@@ -13,6 +13,7 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
+		<Content Include="Education.txt" />
 		<Content Include="Dockerfile.txt" />
 		<Content Include="Dockerfile" />
 		<Compile Include="CEBuilders\CEBuilders.fs" />
