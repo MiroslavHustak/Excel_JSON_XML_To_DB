@@ -7,6 +7,8 @@ open Microsoft.Data.SqlClient
 open FSharp.Control 
 open FsToolkit.ErrorHandling
 
+//*************** THIS IS A TEMPLATE ONLY, DO NOT USE IT AS IS IN PRODUCTION ***************
+
 open DtmJsonIntoDb
 
 (*
@@ -19,10 +21,18 @@ ELSE
 *)
 
 let private queryInsertOrUpdate =
+
+    // !!! Do not remove HOLDLOCK without reading the isolationLevel comments
+    // in the functions below (insertOrUpdateAsync, insertOrUpdateAsyncFailFast,
+    // insertOrUpdateAsyncStream). HOLDLOCK is what protects this MERGE against
+    // the classic "two concurrent upserts both INSERT the same key" race
+    // condition; removing it silently reopens that race even if the
+    // surrounding transaction is ReadCommitted.
+
     "
     USE Natalie;
     
-    MERGE TabA AS target
+    MERGE TabA WITH (HOLDLOCK) AS target
     USING 
         (SELECT @Jmeno, @Prijmeni, @RC, @DatumNarozeni) 
         AS source (Jmeno, Prijmeni, RC, DatumNarozeni)
@@ -100,8 +110,22 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, stri
         {
             let! persons = persons
             let! connection = connection
-
-            let isolationLevel = IsolationLevel.Serializable
+                        
+            // Both options below are safe against the MERGE race condition, given the
+            // query already uses `MERGE TabA WITH (HOLDLOCK)`. Pick one:
+            
+            // Option A: minimal overhead — relies entirely on the HOLDLOCK hint in the
+            // query for correctness; the transaction itself stays at the default level.
+            let isolationLevel = IsolationLevel.ReadCommitted
+            
+            // Option B: belt-and-suspenders — same correctness as A here, but also
+            // makes the whole transaction serializable, so it's the right choice if
+            // you add more statements later that also need protection from the same
+            // kind of race, not just this MERGE.
+            // let isolationLevel = IsolationLevel.Serializable
+            // Trade-off: every read/write in the transaction pays serializable locking
+            // cost, even though only the MERGE target actually needs it — higher
+            // chance of blocking/deadlocks under concurrent load.
 
             return!
                 withTransaction connection isolationLevel
@@ -136,6 +160,13 @@ let internal insertOrUpdateAsync (persons: Result<PersonDtmJsonIntoDb list, stri
                                                 }
                                         )
                                     |> Async.Sequential
+                                    // IMPORTANT: cmdInsert is a single mutable SqlCommand shared across all
+                                    // iterations. This is only safe because Async.Sequential guarantees strict
+                                    // one-at-a-time execution — each item's ExecuteNonQueryAsync() fully
+                                    // completes before the next item's Parameters.Clear() runs. Do NOT change
+                                    // this to Async.Parallel (or any concurrent execution) without giving each
+                                    // iteration its own SqlCommand — concurrent execution would cause parameter
+                                    // values to clash across in-flight calls.
 
                                 match results |> Array.contains false with
                                 | true  -> return! Error "Operation failed (rolled back)"
@@ -153,7 +184,21 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
             let! persons = persons
             let! connection = connection
 
-            let isolationLevel = IsolationLevel.Serializable
+            // Both options below are safe against the MERGE race condition, given the
+            // query already uses `MERGE TabA WITH (HOLDLOCK)`. Pick one:
+            
+            // Option A: minimal overhead — relies entirely on the HOLDLOCK hint in the
+            // query for correctness; the transaction itself stays at the default level.
+            let isolationLevel = IsolationLevel.ReadCommitted
+            
+            // Option B: belt-and-suspenders — same correctness as A here, but also
+            // makes the whole transaction serializable, so it's the right choice if
+            // you add more statements later that also need protection from the same
+            // kind of race, not just this MERGE.
+            // let isolationLevel = IsolationLevel.Serializable
+            // Trade-off: every read/write in the transaction pays serializable locking
+            // cost, even though only the MERGE target actually needs it — higher
+            // chance of blocking/deadlocks under concurrent load.
 
             return!
                 withTransaction connection isolationLevel
@@ -163,6 +208,10 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
                             {
                                 use cmdInsert = new SqlCommand(queryInsertOrUpdate, connection, transaction)
 
+                                // NOTE: parameters are added ONCE, outside the loop, and their .Value is
+                                // mutated per item below — unlike insertOrUpdateAsync, which calls
+                                // Parameters.Clear() and re-adds them every iteration. Either style is fine,
+                                // but see the shared-cmdInsert warning further down: it applies here too.
                                 cmdInsert.Parameters.Add("@Jmeno", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
                                 cmdInsert.Parameters.Add("@Prijmeni", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
                                 cmdInsert.Parameters.Add("@RC", SqlDbType.NVarChar, 100) |> ignore<SqlParameter>
@@ -196,6 +245,14 @@ let internal insertOrUpdateAsyncFailFast (persons: Result<PersonDtmJsonIntoDb li
                                                 }
                                         )
                                     |> List.sequenceAsyncResultM
+                                    // IMPORTANT: cmdInsert (and paramDate) are shared mutable state across all
+                                    // iterations. This is only safe because List.sequenceAsyncResultM runs the
+                                    // asyncResult workflows strictly one at a time, fully completing each item's
+                                    // ExecuteNonQueryAsync() before the next item's parameter values are set.
+                                    // Do NOT replace this with a parallel traversal (e.g. mapping then
+                                    // Async.Parallel, or any "sequenceAsyncResultA"/concurrent variant) without
+                                    // giving each iteration its own SqlCommand — concurrent execution would
+                                    // cause parameter values to clash across in-flight calls.
 
                                 return! Ok ()
                             }
@@ -211,7 +268,21 @@ let internal insertOrUpdateAsyncStream (persons: Result<PersonDtmJsonIntoDb list
             let! persons = persons
             let! connection = connection
 
-            let isolationLevel = IsolationLevel.Serializable
+            // Both options below are safe against the MERGE race condition, given the
+            // query already uses `MERGE TabA WITH (HOLDLOCK)`. Pick one:
+            
+            // Option A: minimal overhead — relies entirely on the HOLDLOCK hint in the
+            // query for correctness; the transaction itself stays at the default level.
+            let isolationLevel = IsolationLevel.ReadCommitted
+            
+            // Option B: belt-and-suspenders — same correctness as A here, but also
+            // makes the whole transaction serializable, so it's the right choice if
+            // you add more statements later that also need protection from the same
+            // kind of race, not just this MERGE.
+            // let isolationLevel = IsolationLevel.Serializable
+            // Trade-off: every read/write in the transaction pays serializable locking
+            // cost, even though only the MERGE target actually needs it — higher
+            // chance of blocking/deadlocks under concurrent load.
 
             return!
                 withTransaction connection isolationLevel
@@ -249,6 +320,14 @@ let internal insertOrUpdateAsyncStream (persons: Result<PersonDtmJsonIntoDb list
                                                     | _ -> return false
                                                 }
                                         )
+                                    // IMPORTANT: cmdInsert (and paramDate) are shared mutable state across all
+                                    // iterations. This is only safe because AsyncSeq.mapAsync, as used here,
+                                    // processes the sequence strictly one element at a time — each item's
+                                    // ExecuteNonQueryAsync() fully completes before the next item's parameter
+                                    // values are set. Do NOT switch to a parallel AsyncSeq combinator (e.g.
+                                    // AsyncSeq.mapAsyncParallel, if available in your FSharp.Control version)
+                                    // without giving each iteration its own SqlCommand — concurrent execution
+                                    // would cause parameter values to clash across in-flight calls.
                                     |> AsyncSeq.toArrayAsync
 
                                 match results |> Array.contains false with
