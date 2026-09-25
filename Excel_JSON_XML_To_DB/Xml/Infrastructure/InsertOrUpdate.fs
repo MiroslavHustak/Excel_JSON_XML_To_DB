@@ -26,15 +26,7 @@ let private queryInsertOrUpdate =
     // the classic "two concurrent upserts both INSERT the same key" race
     // condition; removing it silently reopens that race even if the
     // surrounding transaction is ReadCommitted.
-    //
-    // NOTE: this module previously had MERGE TabA AS target, WITHOUT HOLDLOCK,
-    // while the JSON and Excel counterparts of this same query already had it.
-    // That was almost certainly a copy-paste omission, not an intentional
-    // difference — restored here for consistency with the other modules.
-    // If TabA really doesn't need this protection in this code path (e.g. RC
-    // is guaranteed unique by some upstream process, or this path never runs
-    // concurrently), remove this comment and document why instead.
-
+    
     "
     USE Natalie;
     
